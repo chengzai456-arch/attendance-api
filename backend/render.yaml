@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: attendance-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://frontend-one-gilt-68.vercel.app,https://localhost:3000,http://localhost:3000
+      - key: APP_ENV
+        value: production
+      - key: DATA_DIR
+        value: /app/data
+    healthCheckPath: /api/health
+    plan: starter
+    disk:
+      name: attendance-data
+      mountPath: /app/data
+      sizeGB: 1
