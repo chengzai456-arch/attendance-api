@@ -221,7 +221,7 @@ class PipelineRunner:
                 wb = openpyxl.load_workbook(clean_path, read_only=True)
                 ws = wb.active
                 if ws.max_row:
-                    # 读取表头找到排班相关列
+                    # 读取表头找到排班相关列（兼容不同列名）
                     headers = [cell.value for cell in next(ws.iter_rows(min_row=1, max_row=1))]
                     cols = {str(h): i for i, h in enumerate(headers) if h}
 
@@ -229,18 +229,16 @@ class PipelineRunner:
                     correct = 0
                     over_8h = 0
                     for row in ws.iter_rows(min_row=2, values_only=True):
-                        # 排班状态
-                        schedule_col = cols.get("排班状态")
+                        # 排班状态（是否排班 / 排班状态）
+                        schedule_col = cols.get("排班状态") or cols.get("是否排班")
                         if schedule_col is not None and row[schedule_col] == "是":
                             scheduled += 1
-                        # 排班正确
-                        correct_col = cols.get("排班正确")
-                        if correct_col is not None and row[correct_col] == "是":
+                        # 排班正确（是否排班正确 / 排班正确）
+                        correct_col = cols.get("排班正确") or cols.get("是否排班正确")
+                        if correct_col is not None and row[correct_col] == "正确":
                             correct += 1
-                        # 日超 8H
-                        oh_col = cols.get("日超8H标记")
-                        if oh_col is not None and row[oh_col] == "是":
-                            over_8h += 1
+                        # 日超 8H（是否日超8H / 日超8H标记）
+                        oh_col = cols.get("日超8H标记") or cols.get("是否日超8H")
 
                     total = row_count = ws.max_row - 1
                     if total > 0:
